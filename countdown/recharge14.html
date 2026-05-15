@@ -5,27 +5,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
     background: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", sans-serif;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 170px;
+    padding: 0 12px;
+  }
+
+  #wrapper {
+    width: 100%;
+    max-width: 640px;
+    background: linear-gradient(135deg, #EBF4E6 0%, #e2f0da 100%);
+    border-radius: 14px;
+    border: 1px solid rgba(25, 77, 51, 0.12);
+    box-shadow: 0 2px 12px rgba(25, 77, 51, 0.10), 0 1px 3px rgba(25, 77, 51, 0.08);
+    padding: 14px 20px 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 8px 0 4px;
+    gap: 10px;
+  }
+
+  #header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #badge {
+    background: #194D33;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 2px 7px;
+    border-radius: 20px;
+    white-space: nowrap;
+    line-height: 1.5;
   }
 
   #label {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 17px;
+    font-weight: 700;
     color: #194D33;
-    letter-spacing: 0.04em;
-    margin-bottom: 10px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
   }
 
   #rings {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
     justify-content: center;
   }
@@ -34,55 +68,82 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
   }
 
   .ring-svg { display: block; }
 
   .ring-bg {
-    fill: none;
-    stroke: #e0ede7;
-    stroke-width: 5;
+    fill: rgba(255, 255, 255, 0.65);
+    stroke: rgba(25, 77, 51, 0.15);
+    stroke-width: 4.5;
   }
 
   .ring-fg {
     fill: none;
-    stroke: #194D33;
-    stroke-width: 5;
+    stroke: url(#greenGrad);
+    stroke-width: 4.5;
     stroke-linecap: round;
     transform-origin: center;
     transform: rotate(-90deg);
     transition: stroke-dashoffset 0.5s ease;
+    filter: drop-shadow(0 0 2px rgba(25, 77, 51, 0.25));
   }
 
   .ring-num {
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 21px;
+    font-weight: 800;
     fill: #194D33;
     dominant-baseline: central;
     text-anchor: middle;
+    letter-spacing: -0.5px;
   }
 
   .ring-unit {
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #2d6b48;
+    opacity: 0.85;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .sep {
+    font-size: 22px;
+    font-weight: 700;
     color: #194D33;
-    opacity: 0.75;
-    letter-spacing: 0.05em;
+    opacity: 0.4;
+    margin-bottom: 14px;
+    line-height: 1;
   }
 
   #ended {
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     color: #194D33;
-    padding: 20px 0;
+    letter-spacing: 0.04em;
   }
 </style>
 </head>
 <body>
 
-<div id="label"></div>
-<div id="rings"></div>
-<div id="ended" style="display:none;">優惠已截止</div>
+<div id="wrapper">
+  <div id="header">
+    <span id="badge">限時優惠</span>
+    <span id="label"></span>
+  </div>
+  <div id="rings"></div>
+  <div id="ended" style="display:none;">優惠已截止</div>
+</div>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d8c56"/>
+      <stop offset="100%" style="stop-color:#194D33"/>
+    </linearGradient>
+  </defs>
+</svg>
 
 <script>
 (function () {
@@ -104,14 +165,14 @@
   var cur = getCurrentStage();
   if (!cur) {
     document.getElementById('rings').style.display = 'none';
+    document.getElementById('header').style.display = 'none';
     document.getElementById('ended').style.display = 'block';
     return;
   }
 
   document.getElementById('label').textContent = cur.name + '　倒數中';
 
-  // SVG ring factory
-  var R = 32, C = 2 * Math.PI * R;
+  var R = 30, C = 2 * Math.PI * R;
   var units = [
     { key: 'd', label: '天',  max: 99 },
     { key: 'h', label: '時',  max: 24 },
@@ -122,11 +183,18 @@
   var rings = document.getElementById('rings');
   var fgEls = {}, numEls = {};
 
-  units.forEach(function (u) {
+  units.forEach(function (u, i) {
+    if (i > 0) {
+      var sepEl = document.createElement('span');
+      sepEl.className = 'sep';
+      sepEl.textContent = ':';
+      rings.appendChild(sepEl);
+    }
+
     var wrap = document.createElement('div');
     wrap.className = 'ring-wrap';
 
-    var size = (R + 6) * 2;
+    var size = (R + 8) * 2;
     var cx = size / 2, cy = size / 2;
 
     wrap.innerHTML =
@@ -155,12 +223,11 @@
 
     if (!stage) {
       document.getElementById('rings').style.display = 'none';
-      document.getElementById('label').style.display = 'none';
+      document.getElementById('header').style.display = 'none';
       document.getElementById('ended').style.display = 'block';
       return;
     }
 
-    // 若階段切換，更新標題
     if (stage.name !== cur.name) {
       cur = stage;
       document.getElementById('label').textContent = cur.name + '　倒數中';
