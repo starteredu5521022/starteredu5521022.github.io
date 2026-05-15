@@ -4,138 +4,180 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    background: transparent;
-    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", sans-serif;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 170px;
-    padding: 0 12px;
-  }
+body {
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", sans-serif;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 170px;
+  padding: 0 12px;
+}
 
-  #wrapper {
-    width: 100%;
-    max-width: 640px;
-    background: linear-gradient(135deg, #EBF4E6 0%, #e2f0da 100%);
-    border-radius: 14px;
-    border: 1px solid rgba(25, 77, 51, 0.12);
-    box-shadow: 0 2px 12px rgba(25, 77, 51, 0.10), 0 1px 3px rgba(25, 77, 51, 0.08);
-    padding: 14px 20px 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
+#wrapper {
+  width: 100%;
+  max-width: 640px;
+  background: linear-gradient(135deg, #EBF4E6 0%, #e2f0da 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(25,77,51,0.12);
+  box-shadow: 0 2px 12px rgba(25,77,51,0.10), 0 1px 3px rgba(25,77,51,0.08);
+  padding: 12px 20px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
 
-  #header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+#header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  #badge {
-    background: #C0392B;
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    padding: 2px 10px;
-    border-radius: 20px;
-    white-space: nowrap;
-    line-height: 1.5;
-  }
+#badge {
+  background: #C0392B;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  line-height: 1.5;
+}
 
-  #label {
-    font-size: 18px;
-    font-weight: 700;
-    color: #194D33;
-    letter-spacing: 0.03em;
-    white-space: nowrap;
-  }
+#label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #194D33;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
 
-  #rings {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-  }
+#units {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
 
-  .ring-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-  }
+.unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
 
-  .ring-svg { display: block; }
+.colon {
+  font-size: 30px;
+  font-weight: 800;
+  color: #194D33;
+  opacity: 0.35;
+  line-height: 1;
+  margin-top: 10px;
+}
 
-  .ring-bg {
-    fill: rgba(255, 255, 255, 0.65);
-    stroke: rgba(25, 77, 51, 0.15);
-    stroke-width: 4.5;
-  }
+/* ── Flip card ── */
+.flip-card {
+  position: relative;
+  width: 58px;
+  height: 64px;
+  perspective: 400px;
+}
 
-  .ring-fg {
-    fill: none;
-    stroke: url(#greenGrad);
-    stroke-width: 4.5;
-    stroke-linecap: round;
-    transform-origin: center;
-    transform: rotate(-90deg);
-    transition: stroke-dashoffset 0.5s ease;
-    filter: drop-shadow(0 0 2px rgba(25, 77, 51, 0.25));
-  }
+/* shared num text style */
+.n {
+  position: absolute;
+  left: 0; right: 0;
+  height: 64px;
+  line-height: 64px;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1px;
+}
 
-  .ring-num {
-    font-size: 21px;
-    font-weight: 800;
-    fill: #194D33;
-    dominant-baseline: central;
-    text-anchor: middle;
-    letter-spacing: -0.5px;
-  }
+/* top static half – clips to show upper 32px of the number */
+.fc-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #2d6b48 0%, #1e5c3a 100%);
+  border-bottom: 1px solid rgba(0,0,0,0.28);
+}
+.fc-top .n { bottom: 0; }
 
-  .ring-unit {
-    font-size: 18px;
-    font-weight: 400;
-    color: #194D33;
-    opacity: 0.85;
-    letter-spacing: 0.05em;
-  }
+/* bottom static half – clips to show lower 32px of the number */
+.fc-bot {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 0 0 8px 8px;
+  background: #194D33;
+  box-shadow: 0 4px 10px rgba(25,77,51,0.35);
+}
+.fc-bot .n { top: -32px; }
 
-  @keyframes spinSec {
-    from { transform: rotate(-90deg); }
-    to   { transform: rotate(270deg); }
-  }
-  .spin-ring {
-    fill: none;
-    stroke: rgba(25, 77, 51, 0.5);
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-dasharray: 22 167;
-    transform-origin: center;
-    animation: spinSec 1s linear infinite;
-  }
+/* flip-top: old number, folds backward (z above static) */
+.fc-flip-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #2d6b48 0%, #1e5c3a 100%);
+  border-bottom: 1px solid rgba(0,0,0,0.28);
+  transform-origin: bottom center;
+  z-index: 3;
+  backface-visibility: hidden;
+}
+.fc-flip-top .n { bottom: 0; }
 
-  .sep {
-    font-size: 22px;
-    font-weight: 700;
-    color: #194D33;
-    opacity: 0.4;
-    margin-bottom: 14px;
-    line-height: 1;
-  }
+/* flip-bottom: new number, unfolds forward */
+.fc-flip-bot {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 0 0 8px 8px;
+  background: #194D33;
+  transform-origin: top center;
+  transform: rotateX(90deg);
+  z-index: 2;
+  backface-visibility: hidden;
+}
+.fc-flip-bot .n { top: -32px; }
 
-  #ended {
-    font-size: 16px;
-    font-weight: 700;
-    color: #194D33;
-    letter-spacing: 0.04em;
-  }
+@keyframes flipTop {
+  0%   { transform: rotateX(0deg); }
+  100% { transform: rotateX(-90deg); }
+}
+@keyframes flipBot {
+  0%   { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
+}
+.fc-flip-top.go { animation: flipTop 0.25s ease-in  forwards; }
+.fc-flip-bot.go { animation: flipBot 0.25s ease-out 0.22s forwards; }
+
+.unit-label {
+  font-size: 18px;
+  font-weight: 400;
+  color: #194D33;
+  opacity: 0.85;
+}
+
+#ended {
+  font-size: 16px;
+  font-weight: 700;
+  color: #194D33;
+  letter-spacing: 0.04em;
+}
 </style>
 </head>
 <body>
@@ -145,18 +187,9 @@
     <span id="badge">限時優惠</span>
     <span id="label"></span>
   </div>
-  <div id="rings"></div>
+  <div id="units"></div>
   <div id="ended" style="display:none;">優惠已截止</div>
 </div>
-
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2d8c56"/>
-      <stop offset="100%" style="stop-color:#194D33"/>
-    </linearGradient>
-  </defs>
-</svg>
 
 <script>
 (function () {
@@ -167,99 +200,111 @@
     { name: '預購優惠',                 end: '2026-07-24T03:59:00Z' }
   ];
 
-  function getCurrentStage() {
+  function getStage() {
     var now = new Date();
-    for (var i = 0; i < stages.length; i++) {
+    for (var i = 0; i < stages.length; i++)
       if (now < new Date(stages[i].end)) return stages[i];
-    }
     return null;
   }
 
-  var cur = getCurrentStage();
+  var cur = getStage();
   if (!cur) {
-    document.getElementById('rings').style.display = 'none';
     document.getElementById('header').style.display = 'none';
     document.getElementById('ended').style.display = 'block';
     return;
   }
-
   document.getElementById('label').textContent = cur.name + '　倒數中';
 
-  var R = 30, C = 2 * Math.PI * R;
-  var units = [
-    { key: 'd', label: '天',  max: 99 },
-    { key: 'h', label: '時',  max: 24 },
-    { key: 'm', label: '分',  max: 60 },
-    { key: 's', label: '秒',  max: 60 }
-  ];
+  var keys = ['d', 'h', 'm', 's'];
+  var lbls = ['天', '時', '分', '秒'];
+  var prev = { d: -1, h: -1, m: -1, s: -1 };
+  var els  = {};
+  var cont = document.getElementById('units');
 
-  var rings = document.getElementById('rings');
-  var fgEls = {}, numEls = {};
-
-  units.forEach(function (u, i) {
+  keys.forEach(function (k, i) {
     if (i > 0) {
-      var sepEl = document.createElement('span');
-      sepEl.className = 'sep';
-      sepEl.textContent = ':';
-      rings.appendChild(sepEl);
+      var sep = document.createElement('div');
+      sep.className = 'colon';
+      sep.textContent = ':';
+      cont.appendChild(sep);
     }
 
-    var wrap = document.createElement('div');
-    wrap.className = 'ring-wrap';
+    var unit = document.createElement('div');
+    unit.className = 'unit';
 
-    var size = (R + 8) * 2;
-    var cx = size / 2, cy = size / 2;
+    // card HTML
+    unit.innerHTML =
+      '<div class="flip-card">' +
+        '<div class="fc-top"><div class="n" id="ut-' + k + '">00</div></div>' +
+        '<div class="fc-bot"><div class="n" id="ub-' + k + '">00</div></div>' +
+        '<div class="fc-flip-top" id="ft-' + k + '"><div class="n">00</div></div>' +
+        '<div class="fc-flip-bot" id="fb-' + k + '"><div class="n">00</div></div>' +
+      '</div>' +
+      '<span class="unit-label">' + lbls[i] + '</span>';
 
-    var spinLayer = u.key === 's'
-      ? '<circle class="spin-ring" cx="' + cx + '" cy="' + cy + '" r="' + R + '"/>'
-      : '';
-    wrap.innerHTML =
-      '<svg class="ring-svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
-        '<circle class="ring-bg" cx="' + cx + '" cy="' + cy + '" r="' + R + '"/>' +
-        '<circle class="ring-fg" id="fg-' + u.key + '" cx="' + cx + '" cy="' + cy + '" r="' + R + '"' +
-          ' stroke-dasharray="' + C + '" stroke-dashoffset="' + C + '"/>' +
-        spinLayer +
-        '<text class="ring-num" id="num-' + u.key + '" x="' + cx + '" y="' + cy + '">0</text>' +
-      '</svg>' +
-      '<span class="ring-unit">' + u.label + '</span>';
+    cont.appendChild(unit);
 
-    rings.appendChild(wrap);
-    fgEls[u.key] = document.getElementById('fg-' + u.key);
-    numEls[u.key] = document.getElementById('num-' + u.key);
+    els[k] = {
+      top:  document.getElementById('ut-' + k),
+      bot:  document.getElementById('ub-' + k),
+      ft:   document.getElementById('ft-' + k),
+      fb:   document.getElementById('fb-' + k)
+    };
   });
 
-  function setRing(key, val, max) {
-    var ratio = Math.max(0, Math.min(1, val / max));
-    fgEls[key].style.strokeDashoffset = C * (1 - ratio);
-    numEls[key].textContent = val < 10 ? '0' + val : val;
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function flip(k, val) {
+    var s   = pad(val);
+    var e   = els[k];
+    var old = e.top.textContent;
+
+    e.ft.querySelector('.n').textContent = old;  // old number, folds back
+    e.fb.querySelector('.n').textContent = s;    // new number, comes forward
+    e.bot.textContent = s;                       // update static bottom immediately
+
+    e.ft.classList.remove('go');
+    e.fb.classList.remove('go');
+    void e.ft.offsetWidth; // reflow
+
+    e.ft.classList.add('go');
+    e.fb.classList.add('go');
+
+    setTimeout(function () {
+      e.top.textContent = s;
+      e.ft.classList.remove('go');
+      e.fb.classList.remove('go');
+      e.ft.querySelector('.n').textContent = s;
+    }, 600);
   }
 
   function tick() {
-    var now = new Date();
-    var stage = getCurrentStage();
-
+    var stage = getStage();
     if (!stage) {
-      document.getElementById('rings').style.display = 'none';
+      document.getElementById('units').style.display = 'none';
       document.getElementById('header').style.display = 'none';
       document.getElementById('ended').style.display = 'block';
       return;
     }
-
     if (stage.name !== cur.name) {
       cur = stage;
       document.getElementById('label').textContent = cur.name + '　倒數中';
     }
 
-    var diff = Math.max(0, Math.floor((new Date(stage.end) - now) / 1000));
-    var d = Math.floor(diff / 86400);
-    var h = Math.floor((diff % 86400) / 3600);
-    var m = Math.floor((diff % 3600) / 60);
-    var s = diff % 60;
+    var diff = Math.max(0, Math.floor((new Date(stage.end) - new Date()) / 1000));
+    var vals = {
+      d: Math.floor(diff / 86400),
+      h: Math.floor((diff % 86400) / 3600),
+      m: Math.floor((diff % 3600) / 60),
+      s: diff % 60
+    };
 
-    setRing('d', d, 99);
-    setRing('h', h, 24);
-    setRing('m', m, 60);
-    setRing('s', s, 60);
+    keys.forEach(function (k) {
+      if (vals[k] !== prev[k]) {
+        flip(k, vals[k]);
+        prev[k] = vals[k];
+      }
+    });
   }
 
   tick();
