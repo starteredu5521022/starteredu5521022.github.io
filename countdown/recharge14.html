@@ -5,20 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: transparent; overflow: hidden; }
+  body { background: transparent; overflow: hidden; font-family: sans-serif; }
+  #label {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #194D33;
+    padding: 6px 0 4px;
+    letter-spacing: 0.03em;
+  }
   iframe { width: 100%; height: 170px; border: 0; display: block; }
 </style>
 </head>
 <body>
+<div id="label"></div>
 <div id="root"></div>
 <script>
 (function () {
-  // 各漲價階段截止時間（UTC，來自 Havppen course_discount）
+  // 各漲價階段（名稱 + UTC 截止時間，來自 Havppen course_discount）
   var stages = [
-    { name: 'VVIP 盲鳥優惠', end: '2026-06-18T03:59:00Z' },
-    { name: '超早鳥優惠',    end: '2026-06-28T15:59:00Z' },
-    { name: '早鳥優惠',      end: '2026-07-12T15:59:00Z' },
-    { name: '預購優惠',      end: '2026-07-24T03:59:00Z' }
+    { name: 'VVIP 學員限定｜盲鳥優惠', end: '2026-06-18T03:59:00Z' },
+    { name: '超早鳥優惠',               end: '2026-06-28T15:59:00Z' },
+    { name: '早鳥優惠',                 end: '2026-07-12T15:59:00Z' },
+    { name: '預購優惠',                 end: '2026-07-24T03:59:00Z' }
   ];
 
   var now = new Date();
@@ -26,16 +35,18 @@
   for (var i = 0; i < stages.length; i++) {
     if (now < new Date(stages[i].end)) { cur = stages[i]; break; }
   }
-  if (!cur) return; // 所有優惠已結束，不顯示
+  if (!cur) return;
+
+  document.getElementById('label').textContent = cur.name + '　倒數中';
 
   var e = encodeURIComponent(new Date(cur.end).toISOString());
   var src = 'https://tool.lifehacker.tw/countdown/embed?e=' + e
-          + '&c=21A4B1&l=zh&s=ring&z=m&b=message';
+          + '&c=194D33&l=zh&s=ring&z=m&b=message';
 
   var iframe = document.createElement('iframe');
   iframe.src = src;
   iframe.style.cssText = 'width:100%;height:170px;border:0;display:block;';
-  iframe.title = cur.name + ' 倒數中';
+  iframe.title = cur.name;
   document.getElementById('root').appendChild(iframe);
 })();
 </script>
