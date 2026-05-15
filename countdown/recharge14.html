@@ -332,17 +332,17 @@ body {
     var nd = String(newDigit);
     if (curDigit === nd) return;
 
-    // Move current value into before
+    // Cancel previous cleanup timer so it doesn't kill the next animation
+    if (ul._t) { clearTimeout(ul._t); ul._t = null; }
+
     before.querySelectorAll('.inn').forEach(function (inn) { inn.textContent = curDigit; });
-    // Set new value into active
     active.querySelectorAll('.inn').forEach(function (inn) { inn.textContent = nd; });
 
-    // Trigger animation
     ul.classList.remove('play');
     void ul.offsetWidth;
     ul.classList.add('play');
 
-    setTimeout(function () { ul.classList.remove('play'); }, 1100);
+    ul._t = setTimeout(function () { ul.classList.remove('play'); ul._t = null; }, 1100);
   }
 
   unitDefs.forEach(function (u, i) {
