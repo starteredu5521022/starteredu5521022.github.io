@@ -5,24 +5,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: transparent; overflow: hidden; font-family: sans-serif; }
+  body {
+    background: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0 4px;
+  }
+
   #label {
-    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #194D33;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+
+  #rings {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ring-svg { display: block; }
+
+  .ring-bg {
+    fill: none;
+    stroke: #e0ede7;
+    stroke-width: 5;
+  }
+
+  .ring-fg {
+    fill: none;
+    stroke: #194D33;
+    stroke-width: 5;
+    stroke-linecap: round;
+    transform-origin: center;
+    transform: rotate(-90deg);
+    transition: stroke-dashoffset 0.5s ease;
+  }
+
+  .ring-num {
+    font-size: 22px;
+    font-weight: 700;
+    fill: #194D33;
+    dominant-baseline: central;
+    text-anchor: middle;
+  }
+
+  .ring-unit {
+    font-size: 11px;
+    color: #194D33;
+    opacity: 0.75;
+    letter-spacing: 0.05em;
+  }
+
+  #ended {
     font-size: 15px;
     font-weight: 600;
     color: #194D33;
-    padding: 6px 0 4px;
-    letter-spacing: 0.03em;
+    padding: 20px 0;
   }
-  iframe { width: 100%; height: 170px; border: 0; display: block; }
 </style>
 </head>
 <body>
+
 <div id="label"></div>
-<div id="root"></div>
+<div id="rings"></div>
+<div id="ended" style="display:none;">優惠已截止</div>
+
 <script>
 (function () {
-  // 各漲價階段（名稱 + UTC 截止時間，來自 Havppen course_discount）
   var stages = [
     { name: 'VVIP 學員限定｜盲鳥優惠', end: '2026-06-18T03:59:00Z' },
     { name: '超早鳥優惠',               end: '2026-06-28T15:59:00Z' },
@@ -30,24 +93,93 @@
     { name: '預購優惠',                 end: '2026-07-24T03:59:00Z' }
   ];
 
-  var now = new Date();
-  var cur = null;
-  for (var i = 0; i < stages.length; i++) {
-    if (now < new Date(stages[i].end)) { cur = stages[i]; break; }
+  function getCurrentStage() {
+    var now = new Date();
+    for (var i = 0; i < stages.length; i++) {
+      if (now < new Date(stages[i].end)) return stages[i];
+    }
+    return null;
   }
-  if (!cur) return;
+
+  var cur = getCurrentStage();
+  if (!cur) {
+    document.getElementById('rings').style.display = 'none';
+    document.getElementById('ended').style.display = 'block';
+    return;
+  }
 
   document.getElementById('label').textContent = cur.name + '　倒數中';
 
-  var e = encodeURIComponent(new Date(cur.end).toISOString());
-  var src = 'https://tool.lifehacker.tw/countdown/embed?e=' + e
-          + '&c=194D33&l=zh&s=ring&z=m&b=message';
+  // SVG ring factory
+  var R = 32, C = 2 * Math.PI * R;
+  var units = [
+    { key: 'd', label: '天',  max: 99 },
+    { key: 'h', label: '時',  max: 24 },
+    { key: 'm', label: '分',  max: 60 },
+    { key: 's', label: '秒',  max: 60 }
+  ];
 
-  var iframe = document.createElement('iframe');
-  iframe.src = src;
-  iframe.style.cssText = 'width:100%;height:170px;border:0;display:block;';
-  iframe.title = cur.name;
-  document.getElementById('root').appendChild(iframe);
+  var rings = document.getElementById('rings');
+  var fgEls = {}, numEls = {};
+
+  units.forEach(function (u) {
+    var wrap = document.createElement('div');
+    wrap.className = 'ring-wrap';
+
+    var size = (R + 6) * 2;
+    var cx = size / 2, cy = size / 2;
+
+    wrap.innerHTML =
+      '<svg class="ring-svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+        '<circle class="ring-bg" cx="' + cx + '" cy="' + cy + '" r="' + R + '"/>' +
+        '<circle class="ring-fg" id="fg-' + u.key + '" cx="' + cx + '" cy="' + cy + '" r="' + R + '"' +
+          ' stroke-dasharray="' + C + '" stroke-dashoffset="' + C + '"/>' +
+        '<text class="ring-num" id="num-' + u.key + '" x="' + cx + '" y="' + cy + '">0</text>' +
+      '</svg>' +
+      '<span class="ring-unit">' + u.label + '</span>';
+
+    rings.appendChild(wrap);
+    fgEls[u.key] = document.getElementById('fg-' + u.key);
+    numEls[u.key] = document.getElementById('num-' + u.key);
+  });
+
+  function setRing(key, val, max) {
+    var ratio = Math.max(0, Math.min(1, val / max));
+    fgEls[key].style.strokeDashoffset = C * (1 - ratio);
+    numEls[key].textContent = val < 10 ? '0' + val : val;
+  }
+
+  function tick() {
+    var now = new Date();
+    var stage = getCurrentStage();
+
+    if (!stage) {
+      document.getElementById('rings').style.display = 'none';
+      document.getElementById('label').style.display = 'none';
+      document.getElementById('ended').style.display = 'block';
+      return;
+    }
+
+    // 若階段切換，更新標題
+    if (stage.name !== cur.name) {
+      cur = stage;
+      document.getElementById('label').textContent = cur.name + '　倒數中';
+    }
+
+    var diff = Math.max(0, Math.floor((new Date(stage.end) - now) / 1000));
+    var d = Math.floor(diff / 86400);
+    var h = Math.floor((diff % 86400) / 3600);
+    var m = Math.floor((diff % 3600) / 60);
+    var s = diff % 60;
+
+    setRing('d', d, 99);
+    setRing('h', h, 24);
+    setRing('m', m, 60);
+    setRing('s', s, 60);
+  }
+
+  tick();
+  setInterval(tick, 1000);
 })();
 </script>
 </body>
