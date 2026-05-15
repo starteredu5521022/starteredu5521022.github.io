@@ -100,12 +100,25 @@
   }
 
   .ring-unit {
-    font-size: 10px;
-    font-weight: 600;
-    color: #2d6b48;
+    font-size: 13px;
+    font-weight: 700;
+    color: #194D33;
     opacity: 0.85;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  @keyframes spinSec {
+    from { transform: rotate(-90deg); }
+    to   { transform: rotate(270deg); }
+  }
+  .spin-ring {
+    fill: none;
+    stroke: rgba(25, 77, 51, 0.5);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 22 167;
+    transform-origin: center;
+    animation: spinSec 1s linear infinite;
   }
 
   .sep {
@@ -197,11 +210,15 @@
     var size = (R + 8) * 2;
     var cx = size / 2, cy = size / 2;
 
+    var spinLayer = u.key === 's'
+      ? '<circle class="spin-ring" cx="' + cx + '" cy="' + cy + '" r="' + R + '"/>'
+      : '';
     wrap.innerHTML =
       '<svg class="ring-svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
         '<circle class="ring-bg" cx="' + cx + '" cy="' + cy + '" r="' + R + '"/>' +
         '<circle class="ring-fg" id="fg-' + u.key + '" cx="' + cx + '" cy="' + cy + '" r="' + R + '"' +
           ' stroke-dasharray="' + C + '" stroke-dashoffset="' + C + '"/>' +
+        spinLayer +
         '<text class="ring-num" id="num-' + u.key + '" x="' + cx + '" y="' + cy + '">0</text>' +
       '</svg>' +
       '<span class="ring-unit">' + u.label + '</span>';
