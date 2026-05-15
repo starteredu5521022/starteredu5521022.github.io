@@ -63,113 +63,179 @@ body {
   gap: 6px;
 }
 
-.unit {
+.unit-group {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
 }
 
+.digits {
+  display: flex;
+  gap: 2px;
+}
+
 .colon {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 800;
   color: #194D33;
-  opacity: 0.35;
+  opacity: 0.4;
   line-height: 1;
   margin-top: 10px;
 }
-
-/* ── Flip card ── */
-.flip-card {
-  position: relative;
-  width: 58px;
-  height: 64px;
-  perspective: 400px;
-}
-
-/* shared num text style */
-.n {
-  position: absolute;
-  left: 0; right: 0;
-  height: 64px;
-  line-height: 64px;
-  text-align: center;
-  font-size: 36px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -1px;
-}
-
-/* top static half – clips to show upper 32px of the number */
-.fc-top {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 32px;
-  overflow: hidden;
-  border-radius: 8px 8px 0 0;
-  background: linear-gradient(180deg, #2d6b48 0%, #1e5c3a 100%);
-  border-bottom: 1px solid rgba(0,0,0,0.28);
-}
-.fc-top .n { top: 0; }
-
-/* bottom static half – clips to show lower 32px of the number */
-.fc-bot {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 32px;
-  overflow: hidden;
-  border-radius: 0 0 8px 8px;
-  background: #194D33;
-  box-shadow: 0 4px 10px rgba(25,77,51,0.35);
-}
-.fc-bot .n { top: -32px; }
-
-/* flip-top: old number, folds backward (z above static) */
-.fc-flip-top {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 32px;
-  overflow: hidden;
-  border-radius: 8px 8px 0 0;
-  background: linear-gradient(180deg, #2d6b48 0%, #1e5c3a 100%);
-  border-bottom: 1px solid rgba(0,0,0,0.28);
-  transform-origin: bottom center;
-  z-index: 3;
-  backface-visibility: hidden;
-}
-.fc-flip-top .n { top: 0; }
-
-/* flip-bottom: new number, unfolds forward */
-.fc-flip-bot {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 32px;
-  overflow: hidden;
-  border-radius: 0 0 8px 8px;
-  background: #194D33;
-  transform-origin: top center;
-  transform: rotateX(90deg);
-  z-index: 2;
-  backface-visibility: hidden;
-}
-.fc-flip-bot .n { top: -32px; }
-
-@keyframes flipTop {
-  0%   { transform: rotateX(0deg); }
-  100% { transform: rotateX(-90deg); }
-}
-@keyframes flipBot {
-  0%   { transform: rotateX(90deg); }
-  100% { transform: rotateX(0deg); }
-}
-.fc-flip-top.go { animation: flipTop 0.25s ease-in  forwards; }
-.fc-flip-bot.go { animation: flipBot 0.25s ease-out 0.22s forwards; }
 
 .unit-label {
   font-size: 18px;
   font-weight: 400;
   color: #194D33;
   opacity: 0.85;
+}
+
+/* ── FlipClock tile ── */
+.flip {
+  list-style: none;
+  position: relative;
+  width: 34px;
+  height: 58px;
+  border-radius: 6px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.30);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip li {
+  z-index: 1;
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  line-height: 56px;
+}
+.flip li:first-child { z-index: 2; }
+.flip li.active { z-index: 3; }
+
+.flip li a {
+  display: block;
+  height: 100%;
+  -webkit-perspective: 180px;
+  perspective: 180px;
+  cursor: default;
+}
+
+.flip li a .up,
+.flip li a .down {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  overflow: hidden;
+  outline: 1px solid transparent;
+}
+
+.flip li a .up {
+  top: 0;
+  -webkit-transform-origin: 50% 100%;
+  transform-origin: 50% 100%;
+  border-radius: 6px 6px 0 0;
+  border-bottom: 1px solid rgba(0,0,0,0.35);
+}
+
+.flip li a .down {
+  bottom: 0;
+  -webkit-transform-origin: 50% 0%;
+  transform-origin: 50% 0%;
+  border-radius: 0 0 6px 6px;
+}
+
+.flip li a .shadow {
+  position: absolute;
+  width: 100%; height: 100%;
+  z-index: 2;
+}
+
+/* inn: 200% height so the full digit shows through the half-height clip */
+.flip li a .up .inn {
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%; height: 200%;
+  color: #fff;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 58px;
+  background: linear-gradient(180deg, #2d6b48 0%, #194D33 100%);
+  border-radius: 6px;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.flip li a .down .inn {
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 200%;
+  color: #fff;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 58px;
+  background: #194D33;
+  border-radius: 6px;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* ── Play animations ── */
+.flip.play li.before { z-index: 3; }
+
+.flip.play li.active {
+  -webkit-animation: asd 0.5s 0.5s linear both;
+  animation: asd 0.5s 0.5s linear both;
+  z-index: 5;
+}
+
+.flip.play li.before .up {
+  z-index: 2;
+  -webkit-animation: turn2 0.5s linear both;
+  animation: turn2 0.5s linear both;
+}
+
+.flip.play li.active .down {
+  z-index: 2;
+  -webkit-animation: turn 0.5s 0.5s linear both;
+  animation: turn 0.5s 0.5s linear both;
+}
+
+/* Shadow depth during animation */
+.flip.play li.before .up .shadow {
+  background: linear-gradient(rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%);
+  -webkit-animation: show 0.5s linear both;
+  animation: show 0.5s linear both;
+}
+.flip.play li.active .down .shadow {
+  background: linear-gradient(rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.05) 100%);
+  -webkit-animation: hide 0.4s 0.35s linear both;
+  animation: hide 0.4s 0.35s linear both;
+}
+
+@keyframes turn2 {
+  0%   { transform: rotateX(0deg); }
+  100% { transform: rotateX(-90deg); }
+}
+@keyframes turn {
+  0%   { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
+}
+@keyframes asd {
+  0%   { z-index: 2; }
+  20%  { z-index: 4; }
+  100% { z-index: 4; }
+}
+@keyframes show {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes hide {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 #ended {
@@ -215,13 +281,71 @@ body {
   }
   document.getElementById('label').textContent = cur.name + '　倒數中';
 
-  var keys = ['d', 'h', 'm', 's'];
-  var lbls = ['天', '時', '分', '秒'];
-  var prev = { d: -1, h: -1, m: -1, s: -1 };
-  var els  = {};
-  var cont = document.getElementById('units');
+  var unitDefs = [
+    { key: 'd', label: '天' },
+    { key: 'h', label: '時' },
+    { key: 'm', label: '分' },
+    { key: 's', label: '秒' }
+  ];
 
-  keys.forEach(function (k, i) {
+  var cont = document.getElementById('units');
+  var tiles = {}; // tiles['d'] = [tensUl, onesUl]
+
+  function makeTile() {
+    var ul = document.createElement('ul');
+    ul.className = 'flip';
+
+    ['before', 'active'].forEach(function (cls) {
+      var li = document.createElement('li');
+      li.className = cls;
+      var a = document.createElement('a');
+
+      ['up', 'down'].forEach(function (half) {
+        var div = document.createElement('div');
+        div.className = half;
+        var shadow = document.createElement('div');
+        shadow.className = 'shadow';
+        var inn = document.createElement('div');
+        inn.className = 'inn';
+        inn.textContent = '0';
+        div.appendChild(shadow);
+        div.appendChild(inn);
+        a.appendChild(div);
+      });
+
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+
+    return ul;
+  }
+
+  function setTile(ul, digit) {
+    var d = String(digit);
+    ul.querySelectorAll('.inn').forEach(function (inn) { inn.textContent = d; });
+  }
+
+  function flipTile(ul, newDigit) {
+    var active = ul.querySelector('li.active');
+    var before = ul.querySelector('li.before');
+    var curDigit = active.querySelector('.up .inn').textContent;
+    var nd = String(newDigit);
+    if (curDigit === nd) return;
+
+    // Move current value into before
+    before.querySelectorAll('.inn').forEach(function (inn) { inn.textContent = curDigit; });
+    // Set new value into active
+    active.querySelectorAll('.inn').forEach(function (inn) { inn.textContent = nd; });
+
+    // Trigger animation
+    ul.classList.remove('play');
+    void ul.offsetWidth;
+    ul.classList.add('play');
+
+    setTimeout(function () { ul.classList.remove('play'); }, 1100);
+  }
+
+  unitDefs.forEach(function (u, i) {
     if (i > 0) {
       var sep = document.createElement('div');
       sep.className = 'colon';
@@ -229,54 +353,29 @@ body {
       cont.appendChild(sep);
     }
 
-    var unit = document.createElement('div');
-    unit.className = 'unit';
+    var group = document.createElement('div');
+    group.className = 'unit-group';
 
-    // card HTML
-    unit.innerHTML =
-      '<div class="flip-card">' +
-        '<div class="fc-top"><div class="n" id="ut-' + k + '">00</div></div>' +
-        '<div class="fc-bot"><div class="n" id="ub-' + k + '">00</div></div>' +
-        '<div class="fc-flip-top" id="ft-' + k + '"><div class="n">00</div></div>' +
-        '<div class="fc-flip-bot" id="fb-' + k + '"><div class="n">00</div></div>' +
-      '</div>' +
-      '<span class="unit-label">' + lbls[i] + '</span>';
+    var digRow = document.createElement('div');
+    digRow.className = 'digits';
 
-    cont.appendChild(unit);
+    var tTile = makeTile();
+    var oTile = makeTile();
+    digRow.appendChild(tTile);
+    digRow.appendChild(oTile);
 
-    els[k] = {
-      top:  document.getElementById('ut-' + k),
-      bot:  document.getElementById('ub-' + k),
-      ft:   document.getElementById('ft-' + k),
-      fb:   document.getElementById('fb-' + k)
-    };
+    var lbl = document.createElement('span');
+    lbl.className = 'unit-label';
+    lbl.textContent = u.label;
+
+    group.appendChild(digRow);
+    group.appendChild(lbl);
+    cont.appendChild(group);
+
+    tiles[u.key] = [tTile, oTile];
   });
 
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
-
-  function flip(k, val) {
-    var s   = pad(val);
-    var e   = els[k];
-    var old = e.top.textContent;
-
-    e.ft.querySelector('.n').textContent = old;  // old number, folds back
-    e.fb.querySelector('.n').textContent = s;    // new number, comes forward
-    e.bot.textContent = s;                       // update static bottom immediately
-
-    e.ft.classList.remove('go');
-    e.fb.classList.remove('go');
-    void e.ft.offsetWidth; // reflow
-
-    e.ft.classList.add('go');
-    e.fb.classList.add('go');
-
-    setTimeout(function () {
-      e.top.textContent = s;
-      e.ft.classList.remove('go');
-      e.fb.classList.remove('go');
-      e.ft.querySelector('.n').textContent = s;
-    }, 600);
-  }
+  var prev = { d: -1, h: -1, m: -1, s: -1 };
 
   function tick() {
     var stage = getStage();
@@ -299,11 +398,22 @@ body {
       s: diff % 60
     };
 
-    keys.forEach(function (k) {
-      if (vals[k] !== prev[k]) {
-        flip(k, vals[k]);
-        prev[k] = vals[k];
+    unitDefs.forEach(function (u) {
+      var k = u.key, v = vals[k];
+      var tens = Math.floor(v / 10);
+      var ones = v % 10;
+
+      if (prev[k] < 0) {
+        // First tick: set without animation
+        setTile(tiles[k][0], tens);
+        setTile(tiles[k][1], ones);
+      } else {
+        var prevTens = Math.floor(prev[k] / 10);
+        var prevOnes = prev[k] % 10;
+        if (tens !== prevTens) flipTile(tiles[k][0], tens);
+        if (ones !== prevOnes) flipTile(tiles[k][1], ones);
       }
+      prev[k] = v;
     });
   }
 
